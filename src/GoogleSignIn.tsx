@@ -1,5 +1,6 @@
 import { googleLogout, useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from './store/authStore';
+import { LockOpenIcon, LogOutIcon } from 'lucide-react';
 
 export function GoogleLogin({ scope }: { scope: string }) {
   const { setAccessToken, setAuthError, clearAuth } = useAuthStore();
@@ -33,9 +34,9 @@ export function GoogleLogin({ scope }: { scope: string }) {
     <div>
       <button
         onClick={() => login()}
-        className="w-full bg-green-600 text-white hover:bg-green-700 hover:text-white rounded-md py-2 text-sm"
+        className="w-full bg-green-600 text-white hover:bg-green-700 hover:text-white rounded-md px-4 py-2 text-base"
       >
-        Login with Google
+        <LockOpenIcon className="w-4 h-4 inline-block mr-2" /> Login with Google
       </button>
     </div>
   );
@@ -55,7 +56,7 @@ export function GoogleSignOut({
         // outline button
         className="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-md px-3 py-1 text-sm"
       >
-        Sign Out
+        <LogOutIcon className="w-3 h-3 inline-block mr-1" /> Sign Out
       </button>
     </>
   );

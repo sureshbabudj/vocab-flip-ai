@@ -1,18 +1,18 @@
-import React, { useState } from "react";
-import { useFlashCardStore } from "./store/flashCardStore";
-import { translateText } from "./api/geminiApi";
+import React, { useState } from 'react';
+import { useFlashCardStore } from './store/flashCardStore';
+import { translateText } from './api/geminiApi';
 
 const AddFlashCardForm: React.FC = () => {
   const addCard = useFlashCardStore((s) => s.addCard);
-  const [german, setGerman] = useState("");
+  const [german, setGerman] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError('');
     if (!german.trim()) {
-      setError("Please enter a German word or phrase.");
+      setError('Please enter a German word or phrase.');
       return;
     }
     setLoading(true);
@@ -20,12 +20,12 @@ const AddFlashCardForm: React.FC = () => {
       const msg = await translateText(german);
       addCard({
         german: german.trim(),
-        translation: msg.translation || "",
+        translation: msg.translation || '',
         details: msg,
       });
-      setGerman("");
+      setGerman('');
     } catch (err: any) {
-      setError("Failed to fetch translation: " + (err?.message || err));
+      setError('Failed to fetch translation: ' + (err?.message || err));
     } finally {
       setLoading(false);
     }
@@ -34,7 +34,7 @@ const AddFlashCardForm: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="flex flex-col sm:flex-row items-center gap-4 mt-8 mb-4"
+      className="flex flex-row items-center gap-4 mt-4 mb-4"
     >
       <input
         type="text"
@@ -49,7 +49,7 @@ const AddFlashCardForm: React.FC = () => {
         className="px-6 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition disabled:opacity-50"
         disabled={loading}
       >
-        {loading ? "Adding..." : "Add"}
+        {loading ? 'Adding...' : 'Add'}
       </button>
       {error && <div className="text-red-600 text-sm mt-2 w-full">{error}</div>}
     </form>
