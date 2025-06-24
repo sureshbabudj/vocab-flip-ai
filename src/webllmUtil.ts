@@ -63,4 +63,8 @@ export async function reloadModel(
   return engine.reload(selectedModel);
 }
 
+export function isEngineLoaded() {
+  return !!engine;
+}
+
 export type { webllm };
