@@ -1,4 +1,4 @@
-# German-English Flash Card App
+# VocabFlip AI App
 
 A modern Anki-style flash card app for learning German vocabulary, built with React, Zustand (with local storage), Tailwind CSS, and [webllm](https://github.com/mlc-ai/web-llm) for AI-powered translations.
 
