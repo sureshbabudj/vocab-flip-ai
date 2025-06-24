@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { initial } from "./data/initial";
 
 export interface FlashCard {
   id: string;
@@ -20,7 +21,11 @@ interface FlashCardState {
 export const useFlashCardStore = create<FlashCardState>()(
   persist(
     (set, get) => ({
-      cards: [],
+      cards:
+        typeof window !== "undefined" &&
+        localStorage.getItem("flash-card-storage") == null
+          ? initial.state.cards
+          : [],
       addCard: (card) =>
         set((state) => ({
           cards: [
