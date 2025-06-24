@@ -4,13 +4,14 @@ import FlashCardList from './FlashCardList';
 import { useAuthStore } from './store/authStore';
 import { GoogleLogin, GoogleSignOut } from './GoogleSignIn';
 import { Header } from './components/header';
+import { Filters } from './components/filters';
 
 const App: React.FC = () => {
   const { clearAuth } = useAuthStore();
   const accessToken = useAuthStore((s) => s.accessToken);
   const authError = useAuthStore((s) => s.authError);
 
-  if (accessToken) {
+  if (!accessToken) {
     return (
       <div className="min-h-dvh flex flex-col items-center justify-center gap-10 py-6">
         <div>
@@ -37,6 +38,7 @@ const App: React.FC = () => {
       <div className="w-full max-w-2xl">
         <Header />
         <AddFlashCardForm />
+        <Filters />
         <FlashCardList />
       </div>
     </div>

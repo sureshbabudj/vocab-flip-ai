@@ -99,17 +99,19 @@ const FlashCardComponent: React.FC<Props> = ({ card }) => {
             </span>
           </div>
           {card.details?.example && (
-            <blockquote className="border-l-4 border-blue-400 pl-4 italic text-gray-700 bg-blue-50 rounded mb-2">
-              <div className="text-xs text-blue-400 font-semibold mb-1">
+            <>
+              <span className="block text-xs uppercase text-blue-400 font-semibold mb-1">
                 Example
-              </div>
-              <div className="font-mono text-sm text-blue-900">
-                German: {card.details.example.original}
-              </div>
-              <div className="font-mono text-sm text-blue-900">
-                English: {card.details.example.translated}
-              </div>
-            </blockquote>
+              </span>
+              <blockquote className="border-l-4 border-blue-400 pl-4 italic text-gray-700 bg-blue-50 rounded mb-2">
+                <div className="font-mono text-sm text-blue-900">
+                  German: {card.details.example.original}
+                </div>
+                <div className="font-mono text-sm text-blue-900">
+                  English: {card.details.example.translated}
+                </div>
+              </blockquote>
+            </>
           )}
           {card.details?.verbForms?.length > 0 && (
             <div className="mb-1">
