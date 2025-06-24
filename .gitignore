@@ -21,6 +21,7 @@ yarn-error.log*
 # Misc
 .env*
 *.local
+!.env-example
 
 # Firebase
 firebase-debug.log*

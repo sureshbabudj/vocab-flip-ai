@@ -1,5 +1,5 @@
 import React from "react";
-import { useFlashCardStore } from "./flashCardStore";
+import { useFlashCardStore } from "./store/flashCardStore";
 import FlashCardComponent from "./FlashCard";
 
 const FlashCardList: React.FC = () => {

@@ -1,5 +1,6 @@
-import React from "react";
-import { FlashCard, useFlashCardStore } from "./flashCardStore";
+import React, { useState } from 'react';
+import { type FlashCard, useFlashCardStore } from './store/flashCardStore';
+import { TrashIcon } from 'lucide-react';
 
 interface Props {
   card: FlashCard;
@@ -9,6 +10,7 @@ const FlashCardComponent: React.FC<Props> = ({ card }) => {
   const revealCard = useFlashCardStore((s) => s.revealCard);
   const hideCard = useFlashCardStore((s) => s.hideCard);
   const removeCard = useFlashCardStore((s) => s.removeCard);
+  const [showDelete, setShowDelete] = useState(false);
 
   const handleFlip = () => {
     card.revealed ? hideCard(card.id) : revealCard(card.id);
@@ -21,41 +23,71 @@ const FlashCardComponent: React.FC<Props> = ({ card }) => {
       role="button"
       aria-pressed={card.revealed}
       onClick={handleFlip}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && handleFlip()}
-      style={{ minHeight: "16rem", maxHeight: "24rem" }}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleFlip()}
+      style={{ minHeight: '16rem', maxHeight: '24rem' }}
     >
       <div
-        className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${card.revealed ? "rotate-y-180" : ""}`}
-        style={{ minHeight: "16rem", maxHeight: "24rem" }}
+        className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${card.revealed ? 'rotate-y-180' : ''}`}
+        style={{ minHeight: '16rem', maxHeight: '24rem' }}
       >
         {/* Front */}
+
         <div
           className="absolute w-full h-full backface-hidden bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg shadow flex flex-col items-center justify-center border-2 border-blue-300 p-4"
-          style={{ minHeight: "16rem", maxHeight: "24rem" }}
+          style={{ minHeight: '16rem', maxHeight: '24rem' }}
         >
-          <button
-            className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center bg-red-500 text-white rounded-full shadow hover:bg-red-600 transition text-base font-bold"
-            onClick={(e) => {
-              e.stopPropagation();
-              if (window.confirm("Delete this card?")) removeCard(card.id);
-            }}
-            tabIndex={-1}
-            aria-label="Delete card"
-          >
-            ×
-          </button>
           <div className="text-2xl font-bold text-blue-800 mb-2">
             {card.german}
           </div>
           <div className="text-gray-500 text-sm">Click to reveal</div>
+
+          {/* Delete button only on front */}
+          <button
+            className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center border-2 border-red-500 text-red-500 rounded-full shadow hover:bg-red-600 hover:text-white transition text-base font-bold"
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowDelete(true);
+            }}
+            tabIndex={-1}
+            aria-label="Delete card"
+          >
+            <TrashIcon className="w-4 h-4" />
+          </button>
+          {/* Delete confirmation popup */}
+          {showDelete && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
+              <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
+                <div className="text-lg font-semibold mb-4">
+                  Delete this card?
+                </div>
+                <div className="flex gap-4">
+                  <button
+                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                    onClick={() => {
+                      removeCard(card.id);
+                      setShowDelete(false);
+                    }}
+                  >
+                    Yes
+                  </button>
+                  <button
+                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
+                    onClick={() => setShowDelete(false)}
+                  >
+                    No
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         {/* Back */}
         <div
           className="absolute w-full h-full backface-hidden bg-white rounded-lg shadow border-2 border-blue-600 p-4 flex flex-col items-start justify-start rotate-y-180 overflow-y-auto"
           style={{
-            minHeight: "16rem",
-            maxHeight: "24rem",
-            paddingTop: "1.5rem",
+            minHeight: '16rem',
+            maxHeight: '24rem',
+            paddingTop: '1.5rem',
           }}
         >
           <div className="mb-2">
@@ -72,10 +104,10 @@ const FlashCardComponent: React.FC<Props> = ({ card }) => {
                 Example
               </div>
               <div className="font-mono text-sm text-blue-900">
-                German: {card.details.example.german}
+                German: {card.details.example.original}
               </div>
               <div className="font-mono text-sm text-blue-900">
-                English: {card.details.example.english}
+                English: {card.details.example.translated}
               </div>
             </blockquote>
           )}
@@ -85,7 +117,7 @@ const FlashCardComponent: React.FC<Props> = ({ card }) => {
                 Verb Forms
               </span>
               <span className="text-sm text-gray-700">
-                {card.details.verbForms.join(", ")}
+                {card.details.verbForms.join(', ')}
               </span>
             </div>
           )}
@@ -95,7 +127,7 @@ const FlashCardComponent: React.FC<Props> = ({ card }) => {
                 Other Translations
               </span>
               <span className="text-sm text-gray-700">
-                {card.details.otherTranslations.join(", ")}
+                {card.details.otherTranslations.join(', ')}
               </span>
             </div>
           )}
@@ -105,7 +137,7 @@ const FlashCardComponent: React.FC<Props> = ({ card }) => {
                 Synonyms
               </span>
               <span className="text-sm text-gray-700">
-                {card.details.synonyms.join(", ")}
+                {card.details.synonyms.join(', ')}
               </span>
             </div>
           )}

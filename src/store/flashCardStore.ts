@@ -1,5 +1,5 @@
-import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
 export interface FlashCard {
   id: string;
@@ -11,7 +11,7 @@ export interface FlashCard {
 
 interface FlashCardState {
   cards: FlashCard[];
-  addCard: (card: Omit<FlashCard, "id" | "revealed">) => void;
+  addCard: (card: Omit<FlashCard, 'id' | 'revealed'>) => void;
   revealCard: (id: string) => void;
   hideCard: (id: string) => void;
   removeCard: (id: string) => void;
@@ -19,7 +19,7 @@ interface FlashCardState {
 
 export const useFlashCardStore = create<FlashCardState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       cards: [],
       addCard: (card) =>
         set((state) => ({
@@ -35,13 +35,13 @@ export const useFlashCardStore = create<FlashCardState>()(
       revealCard: (id) =>
         set((state) => ({
           cards: state.cards.map((c) =>
-            c.id === id ? { ...c, revealed: true } : c
+            c.id === id ? { ...c, revealed: true } : c,
           ),
         })),
       hideCard: (id) =>
         set((state) => ({
           cards: state.cards.map((c) =>
-            c.id === id ? { ...c, revealed: false } : c
+            c.id === id ? { ...c, revealed: false } : c,
           ),
         })),
       removeCard: (id) =>
@@ -50,7 +50,7 @@ export const useFlashCardStore = create<FlashCardState>()(
         })),
     }),
     {
-      name: "flash-card-storage",
-    }
-  )
+      name: 'flash-card-storage',
+    },
+  ),
 );
