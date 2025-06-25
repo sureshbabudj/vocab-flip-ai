@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
 import { ThemeToggle } from './ThemeToggle';
 import { googleLogout } from '@react-oauth/google';
+import { Sync } from './sync';
 
 export function Header() {
   const { clearAuth } = useAuthStore();
@@ -31,20 +32,12 @@ export function Header() {
           <ThemeToggle />
         </Button>
 
-        <Dialog open={isImportExportOpen} onOpenChange={setIsImportExportOpen}>
-          <DialogTrigger asChild>
-            <Button variant="outline" size="sm" title="Import/Export Cards">
-              <FolderSyncIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Import/Export</span>
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-lg p-0">
-            <ImportExport
-              isOpen={isImportExportOpen}
-              onClose={() => setIsImportExportOpen(false)}
-            />
-          </DialogContent>
-        </Dialog>
+        <Sync>
+          <Button variant="outline" size="sm" title="Import/Export Cards">
+            <FolderSyncIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Import/Export</span>
+          </Button>
+        </Sync>
 
         <Button
           variant="outline"

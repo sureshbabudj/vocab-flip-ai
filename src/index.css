@@ -4,6 +4,66 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Prevent horizontal scrolling and improve touch handling */
+html,
+body {
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: none;
+}
+
+/* Handle status bar area */
+@supports (padding: max(0px)) {
+  body {
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: env(safe-area-inset-bottom);
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+/* Prevent text selection during swipes */
+* {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Allow text selection in specific areas */
+.card,
+.text-content {
+  -webkit-user-select: text;
+  -moz-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}
+
+/* App container - only prevent horizontal scrolling */
+#root {
+  overflow-x: hidden;
+  overscroll-behavior: none;
+  background: var(--background);
+}
+
+/* Card container touch handling - only for swipe areas */
+.touch-none {
+  touch-action: none;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+/* Tinder view specific touch handling */
+.tinder-view-container {
+  touch-action: none;
+  overflow-x: hidden;
+  overscroll-behavior: none;
+}
+
 /* Custom flip effect utilities */
 .perspective {
   perspective: 1000px;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import AddFlashCardForm from './AddFlashCardForm';
 import FlashCardList from './FlashCardList';
 import { useAuthStore } from './store/authStore';
@@ -9,10 +9,14 @@ import { BottomBar } from './components/bottom-bar';
 import { PWAUpdate } from './components/pwa-update';
 import { PWAInstall } from './components/pwa-install';
 import { ThemeColorManager } from './components/theme-color-manager';
+import { TinderCardStack } from './components/tinder-card-stack';
+import { useFlashCardStore } from './store/flashCardStore';
 
 const App: React.FC = () => {
   const accessToken = useAuthStore((s) => s.accessToken);
   const authError = useAuthStore((s) => s.authError);
+
+  const viewMode = useFlashCardStore((s) => s.viewMode);
 
   if (!accessToken) {
     return (
@@ -50,15 +54,22 @@ const App: React.FC = () => {
       </div>
     );
   }
-
   // Authenticated: show flash card app
   return (
     <div className="min-h-dvh bg-background font-sans">
       <ThemeColorManager />
       <div className="container mx-auto">
         <Header />
-        <AddFlashCardForm />
-        <FlashCardList />
+        {viewMode === 'list' ? (
+          <>
+            <AddFlashCardForm />
+            <FlashCardList />
+          </>
+        ) : (
+          <div className="tinder-view-container">
+            <TinderCardStack />
+          </div>
+        )}
       </div>
       <BottomBar />
       <PWAUpdate />

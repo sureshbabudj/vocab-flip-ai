@@ -2,7 +2,7 @@
   "name": "VocabFlip AI",
   "short_name": "VocabFlip",
   "description": "VocabFlip: AI-powered German vocabulary flash card app. Learn, flip, and master German words with ease!",
-  "theme_color": "#2563eb",
+  "theme_color": "#fafafa",
   "background_color": "#f8fafc",
   "display": "standalone",
   "scope": "/",

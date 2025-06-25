@@ -20,6 +20,7 @@ interface FlashCardState {
   searchField: SearchField;
   currentLetter: string;
   sortDirection: 'a-z' | 'z-a';
+  viewMode: 'list' | 'swipe' | 'study';
 
   // Actions
   addCard: (card: Omit<FlashCard, 'id' | 'revealed' | 'createdAt'>) => void;
@@ -36,6 +37,9 @@ interface FlashCardState {
 
   // reset Search, Filers and Sort
   resetAll: () => void;
+
+  // View mode actions
+  setViewMode: (viewMode: 'list' | 'swipe' | 'study') => void;
 
   // Import/Export actions
   importCards: (cards: FlashCard[]) => void;
@@ -96,6 +100,10 @@ export const useFlashCardStore = create<FlashCardState>()(
             searchField: 'all',
             currentLetter: 'all',
           }),
+
+        // View mode actions
+        viewMode: 'list',
+        setViewMode: (viewMode) => set({ viewMode }),
 
         // Import/Export actions
         importCards: (cards) => set({ cards }),
