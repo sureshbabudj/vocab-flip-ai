@@ -1,41 +1,63 @@
 import React, { useState } from 'react';
-import { GoogleSignOut } from '../GoogleSignIn';
 import { useAuthStore } from '../store/authStore';
 import { ImportExport } from './ImportExport';
-import { FolderSyncIcon } from 'lucide-react';
+import { FolderSyncIcon, LogOutIcon } from 'lucide-react';
+import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
+import { ThemeToggle } from './ThemeToggle';
+import { googleLogout } from '@react-oauth/google';
 
 export function Header() {
   const { clearAuth } = useAuthStore();
   const [isImportExportOpen, setIsImportExportOpen] = useState(false);
 
   return (
-    <>
-      <div className="flex justify-between py-2">
-        <h1 className="flex flex-row items-center gap-2 text-xl font-bold text-center text-blue-700">
-          <img src="/pwa-192.png" className="w-8 h-8" />
-          <span className="sm:inline">VocabFlip AI</span>
+    <div className="flex justify-between items-center border-none px-2 py-4">
+      {/* Brand Section - Primary Focal Point */}
+      <div className="flex flex-row items-center flex-1 justify-center sm:flex-none sm:justify-start">
+        <h1 className="text-2xl sm:text-3xl">
+          <span className="font-brand text-purple-600 dark:text-purple-400">
+            Vocab
+          </span>
+          <span className="font-extrabold text-red-600 dark:text-red-400">
+            Flip
+          </span>
         </h1>
-        <div className="flex items-center gap-2">
-          <button
-            onClick={() => setIsImportExportOpen(true)}
-            className="flex flex-row items-center gap-2 border border-purple-600 text-purple-600 hover:bg-purple-600 hover:text-white rounded-md px-3 py-1 text-sm transition-colors"
-            title="Import/Export Cards"
-          >
-            <FolderSyncIcon className="w-4 h-4" />{' '}
-            <span className="hidden sm:inline">Import/Export</span>
-          </button>
-          <GoogleSignOut
-            handleLogoutSuccess={() => {
-              clearAuth();
-            }}
-          />
-        </div>
       </div>
 
-      <ImportExport
-        isOpen={isImportExportOpen}
-        onClose={() => setIsImportExportOpen(false)}
-      />
-    </>
+      {/* Action Buttons - Secondary Focal Points */}
+      <div className="hidden md:flex items-center gap-2">
+        <Button variant="outline" size="sm">
+          <ThemeToggle />
+        </Button>
+
+        <Dialog open={isImportExportOpen} onOpenChange={setIsImportExportOpen}>
+          <DialogTrigger asChild>
+            <Button variant="outline" size="sm" title="Import/Export Cards">
+              <FolderSyncIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Import/Export</span>
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="max-w-lg p-0">
+            <ImportExport
+              isOpen={isImportExportOpen}
+              onClose={() => setIsImportExportOpen(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => {
+            googleLogout();
+            clearAuth();
+          }}
+        >
+          <LogOutIcon className="w-4 h-4" />
+          <span className="hidden sm:inline">Sign Out</span>
+        </Button>
+      </div>
+    </div>
   );
 }

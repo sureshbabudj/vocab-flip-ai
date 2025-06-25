@@ -1,6 +1,20 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { type FlashCard, useFlashCardStore } from './store/flashCardStore';
-import { TrashIcon } from 'lucide-react';
+import { Trash2Icon } from 'lucide-react';
+import { Button } from './components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from './components/ui/alert-dialog';
+import { Card } from './components/ui/card';
+import { useToast } from './hooks/use-toast';
 
 interface Props {
   card: FlashCard;
@@ -10,140 +24,155 @@ const FlashCardComponent: React.FC<Props> = ({ card }) => {
   const revealCard = useFlashCardStore((s) => s.revealCard);
   const hideCard = useFlashCardStore((s) => s.hideCard);
   const removeCard = useFlashCardStore((s) => s.removeCard);
-  const [showDelete, setShowDelete] = useState(false);
+  const { toast } = useToast();
 
   const handleFlip = () => {
     card.revealed ? hideCard(card.id) : revealCard(card.id);
   };
 
+  const handleDelete = () => {
+    removeCard(card.id);
+    toast({
+      title: 'Card deleted',
+      description: `Removed "${card.german}" from your flashcards.`,
+      variant: 'default',
+    });
+  };
+
   return (
     <div
-      className="perspective w-full min-h-64 relative"
+      className="perspective w-full min-h-72 relative mb-6"
       tabIndex={0}
       role="button"
       aria-pressed={card.revealed}
       onClick={handleFlip}
       onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && handleFlip()}
-      style={{ minHeight: '16rem', maxHeight: '24rem' }}
+      style={{ minHeight: '18rem', maxHeight: '28rem' }}
     >
       <div
         className={`relative w-full h-full transition-transform duration-500 transform-style-preserve-3d ${card.revealed ? 'rotate-y-180' : ''}`}
-        style={{ minHeight: '16rem', maxHeight: '24rem' }}
+        style={{ minHeight: '18rem', maxHeight: '28rem' }}
       >
         {/* Front */}
-
-        <div
-          className="absolute w-full h-full backface-hidden bg-gradient-to-br from-blue-100 to-blue-200 rounded-lg shadow flex flex-col items-center justify-center border-2 border-blue-300 p-4"
-          style={{ minHeight: '16rem', maxHeight: '24rem' }}
+        <Card
+          className="absolute w-full h-full backface-hidden bg-gradient-to-br from-accent to-background/80 text-card-foreground border-3 border-primary/20 shadow-xl hover:shadow-2xl transition-all duration-300 p-6"
+          style={{ minHeight: '18rem', maxHeight: '28rem' }}
         >
-          <div className="text-2xl font-bold text-blue-800 mb-2">
-            {card.german}
-          </div>
-          <div className="text-gray-500 text-sm">Click to reveal</div>
-
-          {/* Delete button only on front */}
-          <button
-            className="absolute top-2 right-2 z-10 w-7 h-7 flex items-center justify-center border-2 border-red-500 text-red-500 rounded-full shadow hover:bg-red-600 hover:text-white transition text-base font-bold"
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowDelete(true);
-            }}
-            tabIndex={-1}
-            aria-label="Delete card"
-          >
-            <TrashIcon className="w-4 h-4" />
-          </button>
-          {/* Delete confirmation popup */}
-          {showDelete && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-40">
-              <div className="bg-white rounded-lg shadow p-6 flex flex-col items-center">
-                <div className="text-lg font-semibold mb-4">
-                  Delete this card?
-                </div>
-                <div className="flex gap-4">
-                  <button
-                    className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
-                    onClick={() => {
-                      removeCard(card.id);
-                      setShowDelete(false);
-                    }}
-                  >
-                    Yes
-                  </button>
-                  <button
-                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded hover:bg-gray-300"
-                    onClick={() => setShowDelete(false)}
-                  >
-                    No
-                  </button>
-                </div>
+          <div className="flex flex-col items-center justify-center h-full">
+            {/* Primary Content - Main Focal Point */}
+            <div className="text-center space-y-4">
+              <div className="text-3xl sm:text-4xl font-bold text-foreground leading-tight">
+                {card.german}
+              </div>
+              <div className="text-muted-foreground text-base font-medium">
+                Tap to reveal translation
               </div>
             </div>
-          )}
-        </div>
-        {/* Back */}
-        <div
-          className="absolute w-full h-full backface-hidden bg-white rounded-lg shadow border-2 border-blue-600 p-4 flex flex-col items-start justify-start rotate-y-180 overflow-y-auto"
-          style={{
-            minHeight: '16rem',
-            maxHeight: '24rem',
-            paddingTop: '1.5rem',
-          }}
-        >
-          <div className="mb-2">
-            <span className="block text-xs uppercase text-blue-400 font-semibold mb-1">
-              Translation
-            </span>
-            <span className="text-lg font-bold text-blue-700">
-              {card.translation}
-            </span>
           </div>
-          {card.details?.example && (
-            <>
-              <span className="block text-xs uppercase text-blue-400 font-semibold mb-1">
-                Example
-              </span>
-              <blockquote className="border-l-4 border-blue-400 pl-4 italic text-gray-700 bg-blue-50 rounded mb-2">
-                <div className="font-mono text-sm text-blue-900">
-                  German: {card.details.example.original}
-                </div>
-                <div className="font-mono text-sm text-blue-900">
-                  English: {card.details.example.translated}
-                </div>
-              </blockquote>
-            </>
-          )}
-          {card.details?.verbForms?.length > 0 && (
-            <div className="mb-1">
-              <span className="block text-xs uppercase text-blue-400 font-semibold mb-1">
-                Verb Forms
-              </span>
-              <span className="text-sm text-gray-700">
-                {card.details.verbForms.join(', ')}
-              </span>
+
+          {/* Delete button - Secondary Action */}
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                variant="outline"
+                size="icon"
+                className="absolute top-4 right-4 z-10 w-8 h-8 text-destructive border-2 border-destructive/50 rounded-full hover:bg-destructive/10"
+                onClick={(e) => e.stopPropagation()}
+                tabIndex={-1}
+                aria-label="Delete card"
+              >
+                <Trash2Icon className="w-5 h-5" />
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent className="min-w-72">
+              <AlertDialogHeader>
+                <AlertDialogTitle>Delete this card?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  This action cannot be undone. This will permanently delete the
+                  card "{card.german}".
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter onClick={(e) => e.stopPropagation()}>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={handleDelete}
+                  className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                >
+                  Delete
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </Card>
+
+        {/* Back */}
+        <Card
+          className="absolute w-full h-full backface-hidden rotate-y-180 bg-gradient-to-br from-card to-card/80 text-card-foreground border-3 border-primary/20 shadow-xl p-6 overflow-y-auto"
+          style={{ minHeight: '18rem', maxHeight: '28rem' }}
+        >
+          <div className="flex flex-col h-full">
+            {/* Translation Section - Primary Focal Point */}
+            <div className="flex flex-col items-center justify-center flex-shrink-0 mb-6">
+              <div className="text-3xl sm:text-4xl font-bold text-foreground mb-3 text-center leading-tight">
+                {card.translation}
+              </div>
+              <div className="text-muted-foreground text-base font-medium">
+                Tap to hide
+              </div>
             </div>
-          )}
-          {card.details?.otherTranslations?.length > 0 && (
-            <div className="mb-1">
-              <span className="block text-xs uppercase text-blue-400 font-semibold mb-1">
-                Other Translations
-              </span>
-              <span className="text-sm text-gray-700">
-                {card.details.otherTranslations.join(', ')}
-              </span>
+
+            {/* Card Details - Secondary Content */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="w-full flex flex-col gap-6">
+                {card.details?.example && (
+                  <div className="flex flex-col space-y-2 text-base">
+                    <div className="t uppercase font-bold text-primary mb-2 tracking-wider">
+                      Example
+                    </div>
+                    <span className="text-primary font-semibold">German:</span>
+                    <blockquote className="border-l-4 border-primary pl-2 italic bg-muted/30">
+                      {card.details.example.original}
+                    </blockquote>
+                    <span className="text-primary font-semibold">English:</span>
+                    <blockquote className="border-l-4 border-primary pl-2 italic bg-muted/30">
+                      {card.details.example.translated}
+                    </blockquote>
+                  </div>
+                )}
+                {card.details?.verbForms?.length > 0 && (
+                  <div className="">
+                    <div className="text-xs uppercase font-bold  mb-2 tracking-wider">
+                      Verb Forms
+                    </div>
+                    <div className="text-sm text-foreground font-medium">
+                      {card.details.verbForms.join(', ')}
+                    </div>
+                  </div>
+                )}
+                {card.details?.otherTranslations?.length > 0 && (
+                  <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
+                    <div className="text-xs uppercase font-bold text-accent mb-2 tracking-wider">
+                      Other Translations
+                    </div>
+                    <div className="text-sm text-foreground font-medium">
+                      {card.details.otherTranslations.join(', ')}
+                    </div>
+                  </div>
+                )}
+                {card.details?.synonyms?.length > 0 && (
+                  <div className="bg-muted/30 rounded-lg p-4 border border-border/50">
+                    <div className="text-xs uppercase font-bold text-accent mb-2 tracking-wider">
+                      Synonyms
+                    </div>
+                    <div className="text-sm text-foreground font-medium">
+                      {card.details.synonyms.join(', ')}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-          )}
-          {card.details?.synonyms?.length > 0 && (
-            <div className="mb-1">
-              <span className="block text-xs uppercase text-blue-400 font-semibold mb-1">
-                Synonyms
-              </span>
-              <span className="text-sm text-gray-700">
-                {card.details.synonyms.join(', ')}
-              </span>
-            </div>
-          )}
-        </div>
+          </div>
+        </Card>
       </div>
     </div>
   );

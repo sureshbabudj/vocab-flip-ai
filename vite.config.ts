@@ -1,6 +1,7 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
+import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -23,11 +24,16 @@ export default defineConfig({
         short_name: 'VocabFlip',
         description:
           'VocabFlip: AI-powered German vocabulary flash card app. Learn, flip, and master German words with ease!',
-        theme_color: '#2563eb',
-        background_color: '#f8fafc',
+        theme_color: '#FDFCFE', // Background color for light mode
+        background_color: '#FDFCFE', // Background color from CSS theme (light mode)
         display: 'standalone',
         scope: '/',
         start_url: '/',
+        orientation: 'portrait',
+        categories: ['education', 'productivity'],
+        lang: 'en',
+        dir: 'ltr',
+        prefer_related_applications: false,
         icons: [
           {
             src: 'favicon-96x96.png',
@@ -108,7 +114,11 @@ export default defineConfig({
       },
     }),
   ],
-
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
   server: {
     port: 8885,
     host: '0.0.0.0',

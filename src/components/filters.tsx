@@ -1,32 +1,37 @@
 import { useState } from 'react';
 import { useFlashCardStore } from '../store/flashCardStore';
-import { X } from 'lucide-react';
+import { X, FilterIcon, SearchIcon } from 'lucide-react';
+import { Button } from './ui/button';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from './ui/select';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 
 export function SortBy() {
   const sortBy = useFlashCardStore((state) => state.sortBy);
   const setSortBy = useFlashCardStore((state) => state.setSortBy);
 
   return (
-    <div className="flex flex-col gap-2">
-      <label
-        htmlFor="sortBy"
-        id="sortByLabel"
-        className="text-xs font-medium text-gray-700"
-      >
-        Sort by:
-      </label>
-      <select
-        name="sortBy"
-        value={sortBy}
-        onChange={(e) => setSortBy(e.target.value as any)}
-        className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-      >
-        <option value="all">All cards</option>
-        <option value="a-z">Alphabetically A to Z</option>
-        <option value="z-a">Alphabetically Z to A</option>
-        <option value="recent">Recently added</option>
-        <option value="oldest">First added</option>
-      </select>
+    <div className="flex flex-col gap-1">
+      <Label className="text-sm font-semibold text-foreground">Sort by:</Label>
+      <Select value={sortBy} onValueChange={setSortBy} name="sortBy">
+        <SelectTrigger id="sortBy">
+          <SelectValue />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectItem value="all">All cards</SelectItem>
+          <SelectItem value="a-z">Alphabetically A to Z</SelectItem>
+          <SelectItem value="z-a">Alphabetically Z to A</SelectItem>
+          <SelectItem value="recent">Recently added</SelectItem>
+          <SelectItem value="oldest">First added</SelectItem>
+        </SelectContent>
+      </Select>
     </div>
   );
 }
@@ -39,24 +44,28 @@ export function Search() {
 
   return (
     <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium text-gray-700">Search:</label>
-      <div className="flex flex-row gap-2">
-        <input
+      <Label className="text-sm font-semibold text-foreground">
+        Search by word:
+      </Label>
+      <div className="flex flex-row gap-2 items-stretch">
+        <Input
           type="text"
+          startIcon={SearchIcon}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           placeholder="Search cards..."
-          className="w-1/2 sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+          className="flex-1 text-sm"
         />
-        <select
-          value={searchField}
-          onChange={(e) => setSearchField(e.target.value as any)}
-          className="w-1/2 sm:w-auto px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-        >
-          <option value="all">All fields</option>
-          <option value="german">German word</option>
-          <option value="translation">Translation</option>
-        </select>
+        <Select value={searchField} onValueChange={setSearchField}>
+          <SelectTrigger className="max-w-20">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All fields</SelectItem>
+            <SelectItem value="german">German word</SelectItem>
+            <SelectItem value="translation">Translation</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
     </div>
   );
@@ -75,118 +84,83 @@ export function PaginationByAlphabet() {
   ).sort();
 
   return (
-    <div className="flex flex-col gap-2">
-      <label className="text-sm font-medium text-gray-700">
-        Filter by letter:
-      </label>
-      <div className="flex flex-wrap gap-1">
-        <button
-          onClick={() => setCurrentLetter('all')}
-          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-            currentLetter === 'all'
-              ? 'bg-blue-500 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          All
-        </button>
-        {letters.map((letter) => (
-          <button
-            key={letter}
-            onClick={() => setCurrentLetter(letter)}
-            className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-              currentLetter === letter
-                ? 'bg-blue-500 text-white'
-                : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-            }`}
+    <>
+      <div className="flex flex-col gap-2">
+        <Label className="text-sm font-semibold text-foreground">
+          Filter by letter:
+        </Label>
+        <div className="flex flex-wrap gap-2">
+          <Button
+            variant={currentLetter === 'all' ? 'default' : 'outline'}
+            onClick={() => setCurrentLetter('all')}
+            size="sm"
+            className="h-10 px-4 font-medium border-2 transition-all duration-200 hover:scale-105"
           >
-            {letter}
-          </button>
-        ))}
+            All
+          </Button>
+          {letters.map((letter) => (
+            <Button
+              key={letter}
+              variant={currentLetter === letter ? 'default' : 'outline'}
+              onClick={() => setCurrentLetter(letter)}
+              size="sm"
+              className="h-10 w-10 font-bold border-2 transition-all duration-200 hover:scale-105"
+            >
+              {letter}
+            </Button>
+          ))}
+        </div>
       </div>
-      <div className="flex gap-2">
-        <button
-          onClick={() => setSortDirection('a-z')}
-          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-            sortDirection === 'a-z'
-              ? 'bg-green-500 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          A → Z
-        </button>
-        <button
-          onClick={() => setSortDirection('z-a')}
-          className={`px-3 py-1 rounded-md text-sm font-medium transition-colors ${
-            sortDirection === 'z-a'
-              ? 'bg-green-500 text-white'
-              : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
-          }`}
-        >
-          Z → A
-        </button>
+      <div className="flex flex-col gap-2">
+        <Label className="text-sm font-semibold text-foreground">
+          Sort by letter:
+        </Label>
+        <div className="flex flex-row gap-2">
+          <Button
+            variant={sortDirection === 'a-z' ? 'default' : 'outline'}
+            onClick={() => setSortDirection('a-z')}
+            size="sm"
+            className="h-10 px-4 font-medium border-2 transition-all duration-200 hover:scale-105"
+          >
+            A → Z
+          </Button>
+          <Button
+            variant={sortDirection === 'z-a' ? 'default' : 'outline'}
+            onClick={() => setSortDirection('z-a')}
+            size="sm"
+            className="h-10 px-4 font-medium border-2 transition-all duration-200 hover:scale-105"
+          >
+            Z → A
+          </Button>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
 // Advanced filters modal
-function AdvancedFiltersModal({
-  isOpen,
-  onClose,
-}: {
-  isOpen: boolean;
-  onClose: () => void;
-}) {
-  if (!isOpen) return null;
-
+function AdvancedFiltersModal() {
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex justify-between items-center p-4 border-b border-gray-200">
-          <h3 className="text-lg font-semibold text-gray-800">
-            Advanced Filters
-          </h3>
-          <button
-            onClick={onClose}
-            className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <X className="w-5 h-5 text-gray-500" />
-          </button>
-        </div>
-        <div className="p-4 space-y-6">
-          <Search />
-          <PaginationByAlphabet />
-        </div>
+    <DialogContent className="max-w-md">
+      <div className="flex flex-col space-y-6">
+        <SortBy />
+        <Search />
+        <PaginationByAlphabet />
       </div>
-    </div>
+    </DialogContent>
   );
 }
 
 // Combined filters component that can be used in the main app
-export function Filters() {
+export function Filters({ children }: React.PropsWithChildren) {
   const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
 
   return (
     <>
-      <div className="bg-white py-3 px-2 rounded-lg shadow-sm border border-gray-200 mb-3">
-        <div className="flex flex-row items-end justify-between gap-2">
-          <div className="flex-1 max-w-xs">
-            <SortBy />
-          </div>
-          <button
-            onClick={() => setIsAdvancedOpen(true)}
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors text-sm font-medium"
-          >
-            Advanced
-          </button>
-        </div>
-      </div>
-
-      <AdvancedFiltersModal
-        isOpen={isAdvancedOpen}
-        onClose={() => setIsAdvancedOpen(false)}
-      />
+      <Dialog open={isAdvancedOpen} onOpenChange={setIsAdvancedOpen}>
+        <DialogTrigger asChild>{children}</DialogTrigger>
+        <AdvancedFiltersModal />
+      </Dialog>
     </>
   );
 }

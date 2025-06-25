@@ -34,6 +34,9 @@ interface FlashCardState {
   setCurrentLetter: (letter: string) => void;
   setSortDirection: (direction: 'a-z' | 'z-a') => void;
 
+  // reset Search, Filers and Sort
+  resetAll: () => void;
+
   // Import/Export actions
   importCards: (cards: FlashCard[]) => void;
   exportCards: () => FlashCard[];
@@ -85,6 +88,14 @@ export const useFlashCardStore = create<FlashCardState>()(
         setSearchField: (searchField) => set({ searchField }),
         setCurrentLetter: (currentLetter) => set({ currentLetter }),
         setSortDirection: (sortDirection) => set({ sortDirection }),
+
+        resetAll: () =>
+          set({
+            sortBy: 'recent',
+            searchTerm: '',
+            searchField: 'all',
+            currentLetter: 'all',
+          }),
 
         // Import/Export actions
         importCards: (cards) => set({ cards }),

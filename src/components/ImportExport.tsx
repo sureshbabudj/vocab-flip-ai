@@ -1,6 +1,17 @@
-import React, { useState, useRef } from 'react';
+import React, { useRef } from 'react';
 import { useFlashCardStore } from '../store/flashCardStore';
 import type { FlashCard } from '../store/flashCardStore';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+} from './ui/card';
+import { Button } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { useToast } from '../hooks/use-toast';
 
 interface ImportExportProps {
   isOpen: boolean;
@@ -18,20 +29,15 @@ const isValidCard = (card: any): card is FlashCard => {
   );
 };
 
-export const ImportExport: React.FC<ImportExportProps> = ({
-  isOpen,
-  onClose,
-}) => {
+export const ImportExport: React.FC<ImportExportProps> = ({ isOpen }) => {
   const { cards, importCards, exportCards } = useFlashCardStore();
-  const [importError, setImportError] = useState<string>('');
-  const [importSuccess, setImportSuccess] = useState<string>('');
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const handleDownload = () => {
     const cardsData = exportCards();
     const dataStr = JSON.stringify(cardsData, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
-
     const url = URL.createObjectURL(dataBlob);
     const link = document.createElement('a');
     link.href = url;
@@ -40,42 +46,43 @@ export const ImportExport: React.FC<ImportExportProps> = ({
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast({
+      title: 'Exported!',
+      description: `Downloaded ${cards.length} cards as JSON.`,
+      variant: 'default',
+    });
   };
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
-
     const reader = new FileReader();
     reader.onload = (e) => {
       try {
         const content = e.target?.result as string;
         const parsedCards = JSON.parse(content) as FlashCard[];
-
-        // Validate the imported data
         if (!Array.isArray(parsedCards)) {
           throw new Error('Invalid file format: expected an array of cards');
         }
-
-        // Validate each card has required fields
-
         if (!parsedCards.every(isValidCard)) {
           throw new Error('Invalid card format: missing required fields');
         }
-
         importCards(parsedCards);
-        setImportSuccess(`Successfully imported ${parsedCards.length} cards!`);
-        setImportError('');
-
-        // Clear the file input
+        toast({
+          title: 'Import successful',
+          description: `Imported ${parsedCards.length} cards!`,
+          variant: 'default',
+        });
         if (fileInputRef.current) {
           fileInputRef.current.value = '';
         }
       } catch (error) {
-        setImportError(
-          error instanceof Error ? error.message : 'Failed to parse file',
-        );
-        setImportSuccess('');
+        toast({
+          title: 'Import error',
+          description:
+            error instanceof Error ? error.message : 'Failed to parse file',
+          variant: 'destructive',
+        });
       }
     };
     reader.readAsText(file);
@@ -94,181 +101,118 @@ export const ImportExport: React.FC<ImportExportProps> = ({
         try {
           const content = e.target?.result as string;
           const parsedCards = JSON.parse(content) as FlashCard[];
-
           if (!Array.isArray(parsedCards)) {
             throw new Error('Invalid file format: expected an array of cards');
           }
-
           if (!parsedCards.every(isValidCard)) {
             throw new Error('Invalid card format: missing required fields');
           }
-
           importCards(parsedCards);
-          setImportSuccess(
-            `Successfully imported ${parsedCards.length} cards!`,
-          );
-          setImportError('');
+          toast({
+            title: 'Import successful',
+            description: `Imported ${parsedCards.length} cards!`,
+            variant: 'default',
+          });
         } catch (error) {
-          setImportError(
-            error instanceof Error ? error.message : 'Failed to parse file',
-          );
-          setImportSuccess('');
+          toast({
+            title: 'Import error',
+            description:
+              error instanceof Error ? error.message : 'Failed to parse file',
+            variant: 'destructive',
+          });
         }
       };
       reader.readAsText(file);
     } else {
-      setImportError('Please drop a valid JSON file');
-      setImportSuccess('');
+      toast({
+        title: 'Import error',
+        description: 'Please drop a valid JSON file',
+        variant: 'destructive',
+      });
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-lg shadow-xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Import/Export Cards
-          </h2>
-          <button
-            onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 transition-colors"
+    <Card>
+      <CardHeader>
+        <CardTitle>Import/Export Cards</CardTitle>
+        <CardDescription>
+          Backup or restore your flash cards as JSON.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-8">
+        {/* Export Section */}
+        <div>
+          <Label className="text-base font-semibold mb-2 block">
+            Export Cards
+          </Label>
+          <p className="text-sm text-muted-foreground mb-4">
+            Download your current cards as a JSON file ({cards.length} cards)
+          </p>
+          <Button
+            onClick={handleDownload}
+            disabled={cards.length === 0}
+            className="w-full"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M6 18L18 6M6 6l12 12"
-              />
-            </svg>
-          </button>
+            Download Cards
+          </Button>
         </div>
-
-        <div className="p-6 space-y-6">
-          {/* Export Section */}
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
-              Export Cards
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Download your current cards as a JSON file ({cards.length} cards)
+        {/* Import Section */}
+        <div>
+          <Label className="text-base font-semibold mb-2 block">
+            Import Cards
+          </Label>
+          <p className="text-sm text-muted-foreground mb-4">
+            Upload a JSON file to import cards (will replace current cards)
+          </p>
+          <div
+            onDragOver={handleDragOver}
+            onDrop={handleDrop}
+            className="border-2 border-dashed border-border rounded-lg p-6 text-center hover:border-primary transition-colors"
+          >
+            <p className="text-sm text-muted-foreground mb-2">
+              Drag and drop a JSON file here, or
             </p>
-            <button
-              onClick={handleDownload}
-              disabled={cards.length === 0}
-              className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-colors"
+            <Button
+              variant="link"
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className="text-primary hover:text-primary/80 font-medium"
             >
-              <svg
-                className="w-5 h-5 inline mr-2"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                />
-              </svg>
-              Download Cards
-            </button>
+              Browse files
+            </Button>
+            <Input
+              ref={fileInputRef}
+              type="file"
+              accept=".json"
+              onChange={handleFileSelect}
+              className="hidden"
+            />
           </div>
-
-          {/* Import Section */}
-          <div>
-            <h3 className="text-lg font-medium text-gray-900 mb-3">
-              Import Cards
-            </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              Upload a JSON file to import cards (will replace current cards)
-            </p>
-
-            <div
-              onDragOver={handleDragOver}
-              onDrop={handleDrop}
-              className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-blue-400 transition-colors"
-            >
-              <svg
-                className="w-12 h-12 text-gray-400 mx-auto mb-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                />
-              </svg>
-              <p className="text-sm text-gray-600 mb-2">
-                Drag and drop a JSON file here, or
-              </p>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="text-blue-600 hover:text-blue-700 font-medium"
-              >
-                browse files
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".json"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-            </div>
-
-            {/* Error/Success Messages */}
-            {importError && (
-              <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-md">
-                <p className="text-sm text-red-600">{importError}</p>
-              </div>
-            )}
-            {importSuccess && (
-              <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-md">
-                <p className="text-sm text-green-600">{importSuccess}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Warning */}
-          <div className="bg-yellow-50 border border-yellow-200 rounded-md p-4">
+        </div>
+        {/* Warning */}
+        <div className="mt-4">
+          <div className="bg-muted border border-border rounded-md p-4">
             <div className="flex">
-              <svg
-                className="w-5 h-5 text-yellow-400 mr-2 mt-0.5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L3.732 16.5c-.77.833.192 2.5 1.732 2.5z"
-                />
-              </svg>
+              <span className="w-5 h-5 text-muted-foreground mr-2 mt-0.5">
+                ⚠️
+              </span>
               <div>
-                <h4 className="text-sm font-medium text-yellow-800">
+                <h4 className="text-sm font-medium text-foreground">
                   Important
                 </h4>
-                <p className="text-sm text-yellow-700 mt-1">
-                  Importing will replace all your current cards. Make sure to
-                  export your current cards first if you want to keep them.
+                <p className="text-sm text-muted-foreground mt-1">
+                  Importing will <b>replace all your current cards</b>. Make
+                  sure to export your current cards first if you want to keep
+                  them.
                 </p>
               </div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };

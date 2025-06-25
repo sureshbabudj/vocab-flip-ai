@@ -1,6 +1,29 @@
 import React, { useMemo } from 'react';
-import { useFlashCardStore } from './store/flashCardStore';
+import { useFlashCardStore, type FlashCard } from './store/flashCardStore';
 import FlashCardComponent from './FlashCard';
+import { Card } from './components/ui/card';
+import { Button } from './components/ui/button';
+
+const ResultsSummary = ({ filteredCards }: { filteredCards: FlashCard[] }) => {
+  const cards = useFlashCardStore((state) => state.cards);
+  const resetAll = useFlashCardStore((state) => state.resetAll);
+
+  return (
+    <>
+      {/* Results Summary */}
+      <div className="flex flex-row gap-2 justify-between items-baseline">
+        <p className="text-sm text-muted-foreground font-medium">
+          Showing {filteredCards.length} of {cards.length} cards
+        </p>
+        {filteredCards.length !== cards.length && (
+          <Button variant="outline" onClick={() => resetAll()}>
+            Reset
+          </Button>
+        )}
+      </div>
+    </>
+  );
+};
 
 const FlashCardList: React.FC = () => {
   const cards = useFlashCardStore((state) => state.cards);
@@ -67,17 +90,32 @@ const FlashCardList: React.FC = () => {
 
   if (filteredCards.length === 0) {
     return (
-      <div className="text-gray-500 text-center mt-8">
-        No flash cards found. Try adjusting your filters or add a new word!
+      <div className="space-y-8 mx-4 my-4">
+        <ResultsSummary filteredCards={filteredCards} />
+        <Card className="p-12 text-center border-2 border-border/50 bg-card/50 backdrop-blur-sm shadow-lg">
+          <div className="space-y-4">
+            <div className="text-6xl text-muted-foreground/50">📚</div>
+            <h3 className="text-xl font-bold text-foreground">
+              No flashcards found
+            </h3>
+            <p className="text-muted-foreground text-base">
+              Try adjusting your filters or add a new word to get started!
+            </p>
+          </div>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-4">
-      {filteredCards.map((card) => (
-        <FlashCardComponent key={card.id} card={card} />
-      ))}
+    <div className="space-y-8 mx-4 my-4">
+      <ResultsSummary filteredCards={filteredCards} />
+      {/* Cards Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+        {filteredCards.map((card) => (
+          <FlashCardComponent key={card.id} card={card} />
+        ))}
+      </div>
     </div>
   );
 };

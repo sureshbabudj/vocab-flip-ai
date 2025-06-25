@@ -1,6 +1,7 @@
-import { googleLogout, useGoogleLogin } from '@react-oauth/google';
+import { useGoogleLogin } from '@react-oauth/google';
 import { useAuthStore } from './store/authStore';
-import { LockOpenIcon, LogOutIcon } from 'lucide-react';
+import { LockOpenIcon } from 'lucide-react';
+import { Button } from './components/ui/button';
 
 export function GoogleLogin({ scope }: { scope: string }) {
   const { setAccessToken, setAuthError, clearAuth } = useAuthStore();
@@ -31,33 +32,14 @@ export function GoogleLogin({ scope }: { scope: string }) {
   });
 
   return (
-    <div>
-      <button
+    <div className="w-full">
+      <Button
         onClick={() => login()}
-        className="w-full bg-green-600 text-white hover:bg-green-700 hover:text-white rounded-md px-4 py-2 text-base"
+        className="w-full h-14 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold text-lg shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105 border-2 border-primary/20"
       >
-        <LockOpenIcon className="w-4 h-4 inline-block mr-2" /> Login with Google
-      </button>
+        <LockOpenIcon className="w-5 h-5 mr-3" />
+        Sign in with Google
+      </Button>
     </div>
-  );
-}
-export function GoogleSignOut({
-  handleLogoutSuccess,
-}: {
-  handleLogoutSuccess: () => void;
-}) {
-  return (
-    <>
-      <button
-        onClick={() => {
-          googleLogout();
-          handleLogoutSuccess();
-        }}
-        // outline button
-        className="border border-red-600 text-red-600 hover:bg-red-600 hover:text-white rounded-md px-3 py-1 text-sm"
-      >
-        <LogOutIcon className="w-3 h-3 inline-block mr-1" /> Sign Out
-      </button>
-    </>
   );
 }

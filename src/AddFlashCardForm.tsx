@@ -1,27 +1,39 @@
 import React, { useState } from 'react';
 import { useFlashCardStore } from './store/flashCardStore';
 import { translateText } from './api/geminiApi';
-import { XIcon } from 'lucide-react';
+import { XIcon, PlusIcon, Loader2Icon, FilterIcon } from 'lucide-react';
+import { Button } from './components/ui/button';
+import { Input } from './components/ui/input';
+import { useToast } from './hooks/use-toast';
+import { Card } from './components/ui/card';
+import { Filters } from './components/filters';
 
 const AddFlashCardForm: React.FC = () => {
   const cards = useFlashCardStore((s) => s.cards);
   const addCard = useFlashCardStore((s) => s.addCard);
   const [german, setGerman] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     if (!german.trim()) {
-      setError('Please enter a German word or phrase.');
+      toast({
+        title: 'Error',
+        description: `Please enter a German word or phrase`,
+        variant: 'destructive',
+      });
       return;
     }
     const existingCard = cards.find(
       (card) => card.german.toLowerCase() === german.trim().toLowerCase(),
     );
     if (existingCard) {
-      setError('Card already exists.');
+      toast({
+        title: 'Info',
+        description: `You already have this card in your deck.`,
+        variant: 'default',
+      });
       return;
     }
     setLoading(true);
@@ -33,46 +45,60 @@ const AddFlashCardForm: React.FC = () => {
         details: msg,
       });
       setGerman('');
+      toast({
+        title: 'Card added!',
+        description: `Added "${german.trim()}" to your flashcards.`,
+        variant: 'default',
+      });
     } catch (err: any) {
-      setError('Failed to fetch translation: ' + (err?.message || err));
+      const errorMessage =
+        'Failed to fetch translation: ' + (err?.message || err);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex flex-col gap-2 mt-4 mb-4">
+    <div className="flex gap-2 justify-between items-center p-2">
       <form
         onSubmit={handleSubmit}
-        className="flex flex-row items-center gap-4 "
+        className="flex-1 flex flex-row gap-2 border-2 rounded-full p-1 relative hover:shadow-md max-w-xl justify-center mx-auto"
       >
-        <input
+        <Input
           type="text"
           value={german}
           onChange={(e) => setGerman(e.target.value)}
-          placeholder="Enter German word or phrase"
-          className="flex-1 px-4 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-400"
+          placeholder="Enter German word or phrase..."
           disabled={loading}
+          className="text-sm rounded-full  border-none focus:border-none !outline-none !ring-0"
         />
-        <button
+        <Button
           type="submit"
-          className="px-6 py-2 bg-blue-600 text-white font-semibold rounded hover:bg-blue-700 transition disabled:opacity-50"
           disabled={loading}
+          variant="ghost"
+          className="absolute right-1 top-1 rounded-full bg-accent-foreground/40 hover:bg-primary/50 w-10 h-10 shadow-sm hover:shadow-md"
         >
-          {loading ? 'Adding...' : 'Add'}
-        </button>
+          {!loading ? (
+            <PlusIcon className="w-5 h-5" />
+          ) : (
+            <Loader2Icon className="w-5 h-5" />
+          )}
+        </Button>
       </form>
-      {error && (
-        <div className="flex flex-row items-center justify-between border border-red-500 p-2 rounded-md text-red-600 text-sm mt-1 w-full">
-          {error}
-          <button
-            onClick={() => setError('')}
-            className="text-xs text-red-600 hover:text-red-700"
-          >
-            <XIcon className="w-4 h-4" />
-          </button>
-        </div>
-      )}
+
+      <Filters>
+        <Button
+          variant="outline"
+          className="rounded-full w-12 h-12  bg-accent-foreground/40 hover:bg-primary/50 shadow-lg"
+        >
+          <FilterIcon className="w-6 h-6" />
+        </Button>
+      </Filters>
     </div>
   );
 };
